@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import firebase from "firebase/app";
-import "firebase/auth";
+
 import "./Login.css";
 import { FaGithub, FaYCombinator, FaGoogle } from "react-icons/fa";
-import LoginSec from "../LoginSec/LoginSec";
-import firebaseConfig from "./FirebaseConfig/firebaseConfig";
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+import {
+  githubLogin,
+  googleLogIn,
+  yahooLogin,
+  customEmailPassReg,
+  userLoginWithCustomEmail,
+} from "../LoginSec/LoginSec";
 
 const Login = () => {
   const [classAdd, setClassAdd] = useState(false);
@@ -28,93 +28,20 @@ const Login = () => {
 
   //Google Sign  in system is
   const handleGoogleSignIn = () => {
-    var googleProvider = new firebase.auth.GoogleAuthProvider();
-    firebase
-      .auth()
-      .signInWithPopup(googleProvider)
-      .then((result) => {
-        var user = result.user;
-      })
-      .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        var email = error.email;
-        var credential = error.credential;
-      });
+    googleLogIn();
   };
 
   //   gitHub signIn system
   const handleGithubSignIn = () => {
-    var githubProvider = new firebase.auth.GithubAuthProvider();
-    firebase
-      .auth()
-      .signInWithPopup(githubProvider)
-      .then((result) => {
-        var user = result.user;
-        console.log(user);
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // The email of the user's account used.
-        var email = error.email;
-        // The firebase.auth.AuthCredential type that was used.
-        var credential = error.credential;
-        // ...
-      });
+    githubLogin();
   };
 
   //Yahoo login method
   const handleYahooSignIn = () => {
-    var yahooProvider = new firebase.auth.OAuthProvider("yahoo.com");
-    firebase
-      .auth()
-      .signInWithPopup(yahooProvider)
-      .then((result) => {
-        const credential = result.credential;
-        var accessToken = credential.accessToken;
-        var idToken = credential.idToken;
-        console.log(result);
-      })
-      .catch((error) => {
-        // Handle error.
-      });
+    yahooLogin();
   };
 
-  //Custom reg system.
-  const createUser = (e) => {
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(userData.email, userData.password)
-      .then((userCredential) => {
-        // Signed in
-        var user = userCredential.user;
-        const newUser = {
-          isSignedIn: true,
-          name: user.displayName,
-          email: user.email,
-          photo: user.photoURL,
-          error: "",
-          success: "Congratulations! You have successfully registered",
-          logError: "",
-          logSuccess: "",
-        };
-        setUser(newUser);
-        console.log(user);
-      })
-      .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log(error.message);
-        const newUser = {
-          isSignedIn: false,
-          error: error.message,
-        };
-        setUser(newUser);
-      });
-    e.preventDefault();
-  };
+  //varify system
   const handleChange = (e) => {
     let value = e.target.value;
     let name = e.target.name;
@@ -139,30 +66,19 @@ const Login = () => {
   };
   console.log(userData);
 
+  //Custom reg system.
+  const createUser = (e) => {
+    customEmailPassReg(userData.email, userData.password).then((res) =>
+      setUser(res)
+    );
+    e.preventDefault();
+  };
+
   //New user Loggin
   const newUserLoggin = (e) => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(userData.email, userData.password)
-      .then((userCredential) => {
-        var user = userCredential.user;
-        const newUser = {
-          isSignedIn: true,
-          name: user.displayName,
-          email: user.email,
-          photo: user.photoURL,
-          error: "",
-          logSuccess: "Congratulations! You have successfully Login",
-        };
-        setUser(newUser);
-      })
-      .catch((error) => {
-        const newUser = {
-          isSignedIn: false,
-          logError: error.message,
-        };
-        setUser(newUser);
-      });
+    userLoginWithCustomEmail(userData.email, userData.password).then((res) =>
+      setUser(res)
+    );
     e.preventDefault();
   };
 
